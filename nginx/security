@@ -1,0 +1,56 @@
+location ~ /.svn/ {
+  log_not_found off;
+  deny all;
+}
+
+location = /favicon.ico {
+  log_not_found off;
+  access_log off;
+}
+
+location = /robots.txt {
+  allow all;
+  log_not_found off;
+  access_log off;
+}
+
+location ~ /\. {
+  deny all;
+}
+
+location ~ ^/administrator/ {
+   log_not_found off;
+
+   limit_conn one 3;
+   error_log /var/log/nginx/protector.log;
+
+   set $my_host $host;
+   if ($cookie_protector !~* 'passed') {
+      set $my_host "protector.local";
+   }
+
+   proxy_pass http://127.0.0.1:80;
+   include proxy_params;
+}
+
+location ~* /wp-login\.php$ {
+   log_not_found off;
+
+   limit_conn one 3;
+   error_log /var/log/nginx/protector.log;
+
+   set $my_host $host;
+   if ($cookie_protector !~* 'passed') {
+      set $my_host "protector.local";
+   }
+
+   proxy_pass http://127.0.0.1:80;
+   include proxy_params;
+}
+
+
+location ~ ^/(?:cache|logs|images|tmp)/.*\.php$ {
+  access_log /var/log/nginx/hackers.log hackers_combined;
+  log_not_found off;
+  deny all;
+}

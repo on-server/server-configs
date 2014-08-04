@@ -1,0 +1,48 @@
+server {
+  listen 144.76.34.85:80;
+  server_name  www.example.com;
+  rewrite ^ http://example.com$request_uri? permanent;
+}
+
+
+server {
+  listen 144.76.34.85:80;
+  server_name staging.example.com;
+
+  root /home/rosberlio/berlio-staging/;
+
+  access_log /var/log/nginx/staging.example.com-access.log;
+  error_log  /var/log/nginx/staging.example.com-error.log;
+
+  location / {
+    uwsgi_pass berlio_staging;
+    include uwsgi_params;
+    if (-f $document_root/.maintenance) {
+        return 503;
+    }
+  }
+  
+  location = /favicon.ico {
+    alias /home/example/example-staging/public/static/favicon.ico;
+    log_not_found off;
+    access_log off;
+  }
+
+  location /static {
+    alias /home/example/example-staging/public/static/;
+    expires 30d;
+    access_log off;
+  }
+
+  location /uploads {
+    alias /home/example/example-staging/public/uploads/;
+    access_log off;
+  }
+
+  error_page 503 /503.html;
+  location /503.html {
+    internal;
+    alias /home/example/example-staging/source/example/templates/503.html;
+  }
+}
+

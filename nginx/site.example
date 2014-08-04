@@ -1,0 +1,9 @@
+server {
+  listen IP:80;
+  server_name example.com www.example.com ;
+  root /home/example/example.com/public/;
+  include proxy;
+  include security;
+  access_log /var/log/nginx/example-access.log;
+  error_log  /var/log/nginx/example-error.log;
+}
